@@ -27,6 +27,14 @@
 #include "newt.h"
 #include "newt_pr.h"
 
+#define GPM_XTERM_ON \
+  printf("%c[?1001s",27), fflush(stdout), /* save old hilit tracking */ \
+  printf("%c[?1000h",27), fflush(stdout)  /* enable mouse tracking */
+  
+#define GPM_XTERM_OFF \
+  printf("%c[?1000l",27), fflush(stdout), /* disable mouse tracking */ \
+  printf("%c[?1001r",27), fflush(stdout) /* restore old hilittracking */
+
 #ifdef USE_GPM
 /*....................................... The connection data structure */
 
@@ -86,8 +94,6 @@ Gpm_Stst *gpm_stack=NULL;
 static struct sigaction gpm_saved_suspend_hook;
 static struct sigaction gpm_saved_winch_hook;
 
-#define GPM_XTERM_ON
-#define GPM_XTERM_OFF
 #define GPM_NODE_DEV "/dev/gpmctl"
 #define GPM_NODE_CTL GPM_NODE_DEV
 
@@ -935,6 +941,8 @@ void newtFormRun(newtComponent co, struct newtExitStruct * es) {
     conn.maxMod      = 0;
 
     Gpm_Open(&conn, 0);
+#else
+    GPM_XTERM_ON;
 #endif
 
     /* draw all of the components */
@@ -1061,6 +1069,32 @@ void newtFormRun(newtComponent co, struct newtExitStruct * es) {
 		    }
 		}
 
+		if (key == NEWT_KEY_MOUSE) {
+			int ctr, mx, my;
+#ifndef USE_GPM
+			int x, y;
+#endif
+			ctr = SLang_getkey() - 32;
+			mx = SLang_getkey() - 32;
+			my = SLang_getkey() - 32;
+			if (ctr == 0) {
+				newtGetWindowPos(&x, &y);
+
+				ev.event = EV_MOUSE;
+				ev.u.mouse.type = MOUSE_BUTTON_DOWN;
+				ev.u.mouse.x = mx - x - 1;
+				ev.u.mouse.y = my - y - 1;
+
+				er = sendEvent(co, ev);
+
+				if (er.result == ER_EXITFORM) {
+					done = 1;
+					es->reason = NEWT_EXIT_COMPONENT;
+					es->u.co = form->exitComp;
+				}
+			}
+		}
+
 		if (key == NEWT_KEY_F1 && form->helpTag && form->helpCb) {
 		    if (form->currComp != -1) {
 			ev.event = EV_UNFOCUS;
@@ -1113,6 +1147,8 @@ void newtFormRun(newtComponent co, struct newtExitStruct * es) {
     newtRefresh();
 #ifdef USE_GPM
     Gpm_Close();
+#else
+    GPM_XTERM_OFF;
 #endif
 }
 

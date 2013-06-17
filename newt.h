@@ -76,6 +76,7 @@ enum newtFlagsSense { NEWT_FLAGS_SET, NEWT_FLAGS_RESET, NEWT_FLAGS_TOGGLE };
 #define NEWT_FLAG_CHECKBOX	(1 << 10)
 #define NEWT_FLAG_PASSWORD      (1 << 11)  /* draw '*'  of chars in entrybox */
 #define NEWT_FLAG_SHOWCURSOR    (1 << 12) /* Only applies to listbox for now */
+#define NEWT_FLAG_MOUSEEXIT 	(1 << 13)
 #define NEWT_FD_READ		(1 << 0)
 #define NEWT_FD_WRITE		(1 << 1)
 #define NEWT_FD_EXCEPT		(1 << 2)
@@ -315,6 +316,7 @@ void newtComponentDestroy(newtComponent co);
 /* not really a key, but newtGetKey returns it */
 #define NEWT_KEY_RESIZE			NEWT_KEY_EXTRA_BASE + 113
 #define NEWT_KEY_ERROR			NEWT_KEY_EXTRA_BASE + 114
+#define NEWT_KEY_MOUSE			NEWT_KEY_EXTRA_BASE + 115
 
 #define NEWT_ANCHOR_LEFT		(1 << 0)
 #define NEWT_ANCHOR_RIGHT		(1 << 1)

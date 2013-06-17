@@ -99,7 +99,7 @@ newtComponent newtListbox(int left, int top, int height, int flags) {
     li->sbAdjust = 0;
     li->bdxAdjust = 0;
     li->bdyAdjust = 0;
-    li->flags = flags & (NEWT_FLAG_RETURNEXIT | NEWT_FLAG_BORDER |
+    li->flags = flags & (NEWT_FLAG_RETURNEXIT | NEWT_FLAG_BORDER | NEWT_FLAG_MOUSEEXIT |
 			 NEWT_FLAG_MULTIPLE | NEWT_FLAG_SHOWCURSOR);
 
     if (li->flags & NEWT_FLAG_BORDER) {
@@ -746,7 +746,10 @@ static struct eventResult listboxEvent(newtComponent co, struct event ev) {
 	    newtListboxRealSetCurrent(co);
 	    listboxDraw(co);
 	    if(co->callback) co->callback(co, co->callbackData);
-	    er.result = ER_SWALLOWED;
+	    if(li->flags & NEWT_FLAG_MOUSEEXIT)
+		er.result = ER_EXITFORM;
+	    else
+	        er.result = ER_SWALLOWED;
 	    break;
 	}
     }

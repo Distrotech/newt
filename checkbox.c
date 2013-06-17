@@ -136,7 +136,11 @@ newtComponent newtCheckbox(int left, int top, const char * text, char defValue,
     else
 	cb->result = &cb->value;
 
-    cb->text = strdup(text);
+    if (text) {
+      cb->text = strdup(text);
+    } else {
+      cb->text = NULL;
+    }
     cb->seq = strdup(seq);
     cb->type = CHECK;
     cb->hasFocus = 0;
@@ -199,18 +203,21 @@ static void cbDraw(newtComponent c) {
 
     switch (cb->type) {
       case RADIO:
-	SLsmg_write_string("( ) ");
+	SLsmg_write_string("( )");
 	break;
 
       case CHECK:
-	SLsmg_write_string("[ ] ");
+	SLsmg_write_string("[ ]");
 	break;
 
       default:
 	break;
     }
 
-    SLsmg_write_string(cb->text);
+    if (cb->text) {
+      SLsmg_write_string(" ");
+      SLsmg_write_string(cb->text);
+    }
 
     if (cb->hasFocus)
 	SLsmg_set_color(cb->active);
@@ -223,7 +230,9 @@ static void cbDraw(newtComponent c) {
 static void cbDestroy(newtComponent co) {
     struct checkbox * cb = co->data;
 
-    free(cb->text);
+    if (cb->text) {
+      free(cb->text);
+    }
     free(cb->seq);
     free(cb);
     free(co);

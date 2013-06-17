@@ -438,18 +438,21 @@ static struct eventResult textboxEvent(newtComponent co,
 	break;
       case EV_MOUSE:
 	/* Top scroll arrow */
-	if (ev.u.mouse.x == co->width && ev.u.mouse.y == co->top) {
-	    if (tb->topLine) tb->topLine--;
+	if (ev.u.mouse.x == co->width+1 && ev.u.mouse.y == co->top) {
+	    tb->topLine -= co->height;
+	    if (tb->topLine < 0) tb->topLine = 0;
 	    textboxDraw(co);
-	    
 	    er.result = ER_SWALLOWED;
 	}
 	/* Bottom scroll arrow */
-	if (ev.u.mouse.x == co->width &&
+	if (ev.u.mouse.x == co->width+1 &&
 	    ev.u.mouse.y == co->top + co->height - 1) {
-	    if (tb->topLine < (tb->numLines - co->height)) tb->topLine++;
+	    tb->topLine += co->height;
+	    if (tb->topLine > (tb->numLines - co->height)) {
+		tb->topLine = tb->numLines - co->height;
+		if (tb->topLine < 0) tb->topLine = 0;
+	    }
 	    textboxDraw(co);
-	    
 	    er.result = ER_SWALLOWED;
 	}
 	break;
